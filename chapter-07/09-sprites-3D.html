@@ -1,44 +1,42 @@
 <!DOCTYPE html>
 
 <html>
-
-<head>
+  <head>
     <title>Example 07.09 - Sprites in 3D</title>
     <script type="text/javascript" src="../libs/three.js"></script>
 
     <script type="text/javascript" src="../libs/stats.js"></script>
     <script type="text/javascript" src="../libs/dat.gui.js"></script>
     <style>
-        body {
-            /* set margin to 0 and overflow to hidden, to go fullscreen */
-            margin: 0;
-            overflow: hidden;
-            background-color: #000000;
-        }
+      body {
+        /* set margin to 0 and overflow to hidden, to go fullscreen */
+        margin: 0;
+        overflow: hidden;
+        background-color: #000000;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div id="Stats-output"></div>
+    <!-- Div which will hold the Output -->
+    <div id="WebGL-output"></div>
 
-<div id="Stats-output">
-</div>
-<!-- Div which will hold the Output -->
-<div id="WebGL-output">
-</div>
-
-
-<!-- Javascript code that runs our Three.js examples -->
-<script type="text/javascript">
-
-    // once everything is loaded, we run our Three.js stuff.
-    function init() {
-
+    <!-- Javascript code that runs our Three.js examples -->
+    <script type="text/javascript">
+      // once everything is loaded, we run our Three.js stuff.
+      function init() {
         var stats = initStats();
 
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         var scene = new THREE.Scene();
 
         // create a camera, which defines where we're looking at.
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
 
         // create a render and set the size
         var webGLRenderer = new THREE.WebGLRenderer();
@@ -51,8 +49,9 @@
         camera.position.z = 150;
 
         // add the output of the renderer to the html element
-        document.getElementById("WebGL-output").appendChild(webGLRenderer.domElement);
-
+        document
+          .getElementById("WebGL-output")
+          .appendChild(webGLRenderer.domElement);
 
         createSprites();
         render();
@@ -60,80 +59,81 @@
         var group;
 
         function createSprites() {
-
-            group = new THREE.Object3D();
-            var range = 200;
-            for (var i = 0; i < 400; i++) {
-                group.add(createSprite(10, false, 0.6, 0xffffff, i % 5, range));
-            }
-            scene.add(group);
+          group = new THREE.Object3D();
+          var range = 200;
+          for (var i = 0; i < 400; i++) {
+            group.add(createSprite(10, false, 0.6, 0xffffff, i % 5, range));
+          }
+          scene.add(group);
         }
-
 
         function getTexture() {
-            var texture = new THREE.ImageUtils.loadTexture("../assets/textures/particles/sprite-sheet.png");
-            return texture;
+          var texture = new THREE.ImageUtils.loadTexture(
+            "../assets/textures/particles/sprite-sheet.png"
+          );
+          return texture;
         }
 
+        function createSprite(
+          size,
+          transparent,
+          opacity,
+          color,
+          spriteNumber,
+          range
+        ) {
+          var spriteMaterial = new THREE.SpriteMaterial({
+            opacity: opacity,
+            color: color,
+            transparent: transparent,
+            map: getTexture(),
+          });
 
-        function createSprite(size, transparent, opacity, color, spriteNumber, range) {
+          // we have 1 row, with five sprites
+          spriteMaterial.map.offset = new THREE.Vector2(0.2 * spriteNumber, 0);
+          spriteMaterial.map.repeat = new THREE.Vector2(1 / 5, 1);
+          spriteMaterial.depthTest = false;
 
+          spriteMaterial.blending = THREE.AdditiveBlending;
 
-            var spriteMaterial = new THREE.SpriteMaterial({
-                        opacity: opacity,
-                        color: color,
-                        transparent: transparent,
-                        map: getTexture()
-                    }
-            );
+          var sprite = new THREE.Sprite(spriteMaterial);
+          sprite.scale.set(size, size, size);
+          sprite.position.set(
+            Math.random() * range - range / 2,
+            Math.random() * range - range / 2,
+            Math.random() * range - range / 2
+          );
+          sprite.velocityX = 5;
 
-            // we have 1 row, with five sprites
-            spriteMaterial.map.offset = new THREE.Vector2(0.2 * spriteNumber, 0);
-            spriteMaterial.map.repeat = new THREE.Vector2(1 / 5, 1);
-            spriteMaterial.depthTest = false;
-
-            spriteMaterial.blending = THREE.AdditiveBlending;
-
-            var sprite = new THREE.Sprite(spriteMaterial);
-            sprite.scale.set(size, size, size);
-            sprite.position.set(Math.random() * range - range / 2, Math.random() * range - range / 2, Math.random() * range - range / 2);
-            sprite.velocityX = 5;
-
-
-            return sprite;
+          return sprite;
         }
-
 
         var step = 0;
 
         function render() {
+          stats.update();
+          step += 0.01;
+          group.rotation.x = step;
 
-            stats.update();
-            step += 0.01;
-            group.rotation.x = step;
-
-            requestAnimationFrame(render);
-            webGLRenderer.render(scene, camera);
+          requestAnimationFrame(render);
+          webGLRenderer.render(scene, camera);
         }
 
         function initStats() {
+          var stats = new Stats();
+          stats.setMode(0); // 0: fps, 1: ms
 
-            var stats = new Stats();
-            stats.setMode(0); // 0: fps, 1: ms
+          // Align top-left
+          stats.domElement.style.position = "absolute";
+          stats.domElement.style.left = "0px";
+          stats.domElement.style.top = "0px";
 
-            // Align top-left
-            stats.domElement.style.position = 'absolute';
-            stats.domElement.style.left = '0px';
-            stats.domElement.style.top = '0px';
+          document.getElementById("Stats-output").appendChild(stats.domElement);
 
-            document.getElementById("Stats-output").appendChild(stats.domElement);
-
-            return stats;
+          return stats;
         }
-
-
-    }
-    window.onload = init;
-</script>
-</body>
+      }
+      window.onload = init;
+    </script>
+  </body>
 </html>
