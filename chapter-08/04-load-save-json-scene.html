@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 
 <html>
-
-<head>
+  <head>
     <title>Example 08.04 - Load and save scene</title>
     <script type="text/javascript" src="../libs/three.js"></script>
     <script type="text/javascript" src="../libs/SceneLoader.js"></script>
@@ -11,45 +10,45 @@
     <script type="text/javascript" src="../libs/stats.js"></script>
     <script type="text/javascript" src="../libs/dat.gui.js"></script>
     <style>
-        body {
-            /* set margin to 0 and overflow to hidden, to go fullscreen */
-            margin: 0;
-            overflow: hidden;
-        }
+      body {
+        /* set margin to 0 and overflow to hidden, to go fullscreen */
+        margin: 0;
+        overflow: hidden;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div id="Stats-output"></div>
+    <!-- Div which will hold the Output -->
+    <div id="WebGL-output"></div>
 
-<div id="Stats-output">
-</div>
-<!-- Div which will hold the Output -->
-<div id="WebGL-output">
-</div>
-
-<!-- Javascript code that runs our Three.js examples -->
-<script type="text/javascript">
-
-    // once everything is loaded, we run our Three.js stuff.
-    function init() {
-
+    <!-- Javascript code that runs our Three.js examples -->
+    <script type="text/javascript">
+      // once everything is loaded, we run our Three.js stuff.
+      function init() {
         var stats = initStats();
 
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         var scene = new THREE.Scene();
 
         // create a camera, which defines where we're looking at.
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
 
         // create a render and set the size
         var renderer = new THREE.WebGLRenderer();
 
-        renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+        renderer.setClearColor(new THREE.Color(0xeeeeee, 1.0));
         renderer.setSize(window.innerWidth, window.innerHeight);
         //    renderer.shadowMapEnabled = true;
 
         // create the ground plane
         var planeGeometry = new THREE.PlaneGeometry(60, 20, 1, 1);
-        var planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+        var planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
         //  plane.receiveShadow  = true;
 
@@ -64,7 +63,7 @@
 
         // create a cube
         var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
-        var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
+        var cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         // cube.castShadow = true;
 
@@ -77,7 +76,7 @@
         scene.add(cube);
 
         var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
-        var sphereMaterial = new THREE.MeshLambertMaterial({color: 0x7777ff});
+        var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0x7777ff });
         var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
         // position the sphere
@@ -106,67 +105,70 @@
         scene.add(spotLight);
 
         // add the output of the renderer to the html element
-        document.getElementById("WebGL-output").appendChild(renderer.domElement);
+        document
+          .getElementById("WebGL-output")
+          .appendChild(renderer.domElement);
 
         // call the render function
         var step = 0;
 
-        var controls = new function () {
-            this.exportScene = function () {
-                var exporter = new THREE.SceneExporter();
-                var sceneJson = JSON.stringify(exporter.parse(scene));
-                localStorage.setItem('scene', sceneJson);
-            };
+        var controls = new (function () {
+          this.exportScene = function () {
+            var exporter = new THREE.SceneExporter();
+            var sceneJson = JSON.stringify(exporter.parse(scene));
+            localStorage.setItem("scene", sceneJson);
+          };
 
-            this.clearScene = function () {
-                scene = new THREE.Scene();
-            };
+          this.clearScene = function () {
+            scene = new THREE.Scene();
+          };
 
-            this.importScene = function () {
-                var json = (localStorage.getItem('scene'));
-                var sceneLoader = new THREE.SceneLoader();
+          this.importScene = function () {
+            var json = localStorage.getItem("scene");
+            var sceneLoader = new THREE.SceneLoader();
 
-                sceneLoader.parse(JSON.parse(json), function (e) {
-                    scene = e.scene;
-                }, '.');
-            }
-        };
+            sceneLoader.parse(
+              JSON.parse(json),
+              function (e) {
+                scene = e.scene;
+              },
+              "."
+            );
+          };
+        })();
 
         var gui = new dat.GUI();
         gui.add(controls, "exportScene");
         gui.add(controls, "clearScene");
         gui.add(controls, "importScene");
 
-
         render();
 
         function render() {
-            stats.update();
-            // rotate the cube around its axes
+          stats.update();
+          // rotate the cube around its axes
 
-
-            // render using requestAnimationFrame
-            requestAnimationFrame(render);
-            renderer.render(scene, camera);
+          // render using requestAnimationFrame
+          requestAnimationFrame(render);
+          renderer.render(scene, camera);
         }
 
         function initStats() {
+          var stats = new Stats();
 
-            var stats = new Stats();
+          stats.setMode(0); // 0: fps, 1: ms
 
-            stats.setMode(0); // 0: fps, 1: ms
+          // Align top-left
+          stats.domElement.style.position = "absolute";
+          stats.domElement.style.left = "0px";
+          stats.domElement.style.top = "0px";
 
-            // Align top-left
-            stats.domElement.style.position = 'absolute';
-            stats.domElement.style.left = '0px';
-            stats.domElement.style.top = '0px';
+          document.getElementById("Stats-output").appendChild(stats.domElement);
 
-            document.getElementById("Stats-output").appendChild(stats.domElement);
-
-            return stats;
+          return stats;
         }
-    }
-    window.onload = init;
-</script>
-</body>
+      }
+      window.onload = init;
+    </script>
+  </body>
 </html>
